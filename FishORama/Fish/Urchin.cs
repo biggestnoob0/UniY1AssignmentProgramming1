@@ -89,8 +89,13 @@ namespace FishORama.Fish
                     }
                 }
             }
+            else if (tokenManager.ChickenLeg == null)
+            {
+                // resets if chicken leg is gone ready for the next one
+                chickenLegRecentlySpawned = false;
+            }
             //reverse direction if edge of screen reached (factors in image width)
-            else if (xPosition >= (screen.width / 2) - (imageAssetBounds.X / 2))
+            if (xPosition >= (screen.width / 2) - (imageAssetBounds.X / 2))
             {
                 //handles speed
                 speedX = -standardSpeedX;

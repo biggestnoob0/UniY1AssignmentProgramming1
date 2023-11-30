@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace FishORama.Fish
 {
-    class Piranha : IDraw
+    class BlueFish : IDraw
     {
         // CLASS VARIABLES
         // Variables hold the information for the class
@@ -24,23 +24,22 @@ namespace FishORama.Fish
 
         // *** ADD YOUR CLASS VARIABLES HERE *** 
 
-        public static readonly Vector2 imageAssetBounds = new Vector2(132, 128);
-        float speedX;
-        float speedY;
+        public static readonly Vector2 imageAssetBounds = new Vector2(128, 86);
+
+        const string bubbleTextureID = "Bubble";
+
+        float standardSpeed;
+        Vector2 targetPosition;
         Random random = new Random();
+        public List<Bubble> bubbles = new List<Bubble>();
 
-        float standardSpeedX;
-        float standardSpeedY;
-
-        // high value to help with chicken legs on the corner of the screen
-        const float maxCoordinateDiff = 120;
-
-        const float speedWhenChickenLeg = 6;
+        const int maxTargetDistance = 50;
+        const int minimumTargetCoordChange = 300;
 
 
         /// CONSTRUCTOR: OrangeFish Constructor
         /// The elements in the brackets are PARAMETERS, which will be covered later in the course
-        public Piranha(string pTextureID, float pXpos, float pYpos, Screen pScreen, ITokenManager pTokenManager)
+        public BlueFish(string pTextureID, float pXpos, float pYpos, Screen pScreen, ITokenManager pTokenManager)
         {
             // State initialisation (setup) for the object
             textureID = pTextureID;
@@ -53,16 +52,11 @@ namespace FishORama.Fish
 
             // *** ADD OTHER INITIALISATION (class setup) CODE HERE ***
 
-            // max is 51 not 50 as random upper bound is exclusive (doesnt include the max value)
-            // i am passing in 20-51 instead of 2-6 due to 20-51 / 10 giving more accuracy and therefore more variety of speeds
-            speedX = random.Next(20, 51) / 10;
-            speedY = 0;
+            // max is 41 not 40 as random upper bound is exclusive (doesnt include the max value)
+            // i am passing in 30-41 instead of 3-5 due to 30-41 / 10 giving more accuracy and therefore more variety of speeds
+            standardSpeed = random.Next(30, 41) / 10f;
 
-            // stores the original speed for direction changing and behaviour changes
-            standardSpeedX = speedX;
-            standardSpeedY = speedY;
-
-
+            GenRandomTarget();
 
         }
 
@@ -72,58 +66,66 @@ namespace FishORama.Fish
         {
             // *** ADD YOUR MOVEMENT/BEHAVIOUR CODE HERE ***
 
-            if (tokenManager.ChickenLeg != null)
-            {
-                float coordinateDiff = Math.Abs(xPosition - tokenManager.ChickenLeg.Position.X) + Math.Abs(yPosition - tokenManager.ChickenLeg.Position.Y);
-                // if difference in positions is less than the maximum coordinate diff const value then eat the chicken leg
-                if (coordinateDiff < maxCoordinateDiff)
-                {
-                    tokenManager.RemoveChickenLeg();
-                    // makes the piranha continue in the direction its already going
-                    if (speedX > 0)
-                    {
-                        speedX = standardSpeedX;
-                    }
-                    else
-                    {
-                        speedX = -standardSpeedX;
-                    }
+            float coordinateDiff = Math.Abs(xPosition - targetPosition.X) + Math.Abs(yPosition - targetPosition.Y);
 
-                    speedY = standardSpeedY;
+            // if at target make new one
+            if (coordinateDiff <= maxTargetDistance)
+            {
+                GenRandomTarget();
+                // spawns a bubble when the target is hit
+                SpawnBubble();
+            }
+
+            // vector movement
+            Vector2 position = new Vector2(xPosition, yPosition);
+
+            Vector2 direction = Vector2.Normalize(targetPosition - position);
+            if(direction.X >= 0)
+            {
+                xDirection = 1;
+            }
+            else
+            {
+                xDirection = -1;
+            }
+
+            xPosition += direction.X * standardSpeed;
+            yPosition += direction.Y * standardSpeed;
+
+            // updates all bubbles and checks if they need removing
+            for(int i = 0; i < bubbles.Count;)
+            {
+                bubbles[i].Update();
+                if (bubbles[i].removeFlag)
+                {
+                    bubbles.RemoveAt(i);
                 }
                 else
                 {
-                    Vector2 currentLocation = new Vector2(xPosition, yPosition);
-                    Vector2 direction = Vector2.Normalize(tokenManager.ChickenLeg.Position - currentLocation);
-                    if(direction.X > 0)
-                    {
-                        xDirection = 1;
-                    }
-                    else
-                    {
-                        xDirection = -1;
-                    }
-                    speedX = direction.X * speedWhenChickenLeg;
-                    speedY = direction.Y * speedWhenChickenLeg;
+                    i++;
                 }
             }
 
-            //reverse direction if edge of screen reached (factors in image width)
-            if (xPosition >= (screen.width / 2) - (imageAssetBounds.X / 2))
-            {
-                //handles speed
-                speedX = -standardSpeedX;
-                xDirection = -1;
-            }
-            else if (xPosition <= (-screen.width / 2) + (imageAssetBounds.X / 2))
-            {
-                speedX = standardSpeedX;
-                xDirection = 1;
-            }
+        }
+        private void GenRandomTarget()
+        {
+            float randomX, randomY;
+            float diff;
+            // loops until the random coordinates are at far enough away from the current coordinates. far enough is determined by the minimumTargetCoordChange variable
+            do {
+                randomX = random.Next((int)(-screen.width / 2 + (imageAssetBounds.X / 2)), (int)(screen.width / 2 - (imageAssetBounds.X / 2)));
+                randomY = random.Next((int)(-screen.height / 2 + (imageAssetBounds.Y / 2)), (int)(screen.height / 2 - (imageAssetBounds.Y / 2)));
+                // takes random coordinates away from current ones and gets the positive difference of the 2
+                diff = Math.Abs(randomX - xPosition) + Math.Abs(randomY - yPosition);
 
-            // adds speed to the overall position
-            xPosition += speedX;
-            yPosition += speedY;
+            } while(diff < minimumTargetCoordChange);
+            // assigns new target
+            targetPosition = new Vector2(randomX, randomY);
+        }
+        private void SpawnBubble()
+        {
+            // adds a new instance of a bubble with its starting psoition slightly above the fish
+            bubbles.Add(new Bubble(bubbleTextureID, new Vector2(xPosition, yPosition + imageAssetBounds.Y), screen));
         }
 
         /// METHOD: Draw - Called repeatedly by FishORama engine to draw token on screen
@@ -131,6 +133,12 @@ namespace FishORama.Fish
         /// Comments explain the code - read and try and understand each lines purpose
         public void Draw(IGetAsset pAssetManager, SpriteBatch pSpriteBatch)
         {
+            // draws the bubbles to the screen
+            foreach(Bubble bubble in bubbles)
+            {
+                bubble.Draw(pAssetManager, pSpriteBatch);
+            }
+
             Asset currentAsset = pAssetManager.GetAssetByID(textureID); // Get this token's asset from the AssetManager
 
             SpriteEffects horizontalDirection; // Stores whether the texture should be flipped horizontally

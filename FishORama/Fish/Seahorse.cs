@@ -32,6 +32,10 @@ namespace FishORama.Fish
 
         float speedX;
         float speedY;
+
+        // dont need this for X as the sink and rise states dont altar the speedX variable
+        float standardSpeedY;
+        const float sinkRiseSpeed = 1;
         Random random = new Random();
 
         float minY;
@@ -65,13 +69,16 @@ namespace FishORama.Fish
             // *** ADD OTHER INITIALISATION (class setup) CODE HERE ***
 
             // max is 51 not 50 as random upper bound is exclusive (doesnt include the max value)
-            // i am passing in 20-51 instead of 2-6 due to 20-51 / 10 giving more accuracy and therefore more variety of speeds
-            speedX = random.Next(20, 51) / 10;
-            speedY = random.Next(20, 51) / 10;
+            // i am passing in 20-51 instead of 2-6 / 2 due to 20-51 / 20 giving more accuracy and therefore more variety of speeds
+            // divding by 20 as standard movement is 45 degrees rather than straight, so the total speed will be roughly speedX + speedY or roughly between 2 and 5
+            speedX = random.Next(20, 51) / 20;
+            speedY = random.Next(20, 51) / 20;
             minY = yPosition - 50;
             maxY = yPosition + 50;
 
+            standardSpeedY = speedY;
 
+            // generates the amount of frames needed to sink or float randomly between 2 constant bounds
             framesBetweenSinkOrRise = random.Next(minFramesBetweenSinkOrRise, maxFramesBetweenSinkOrRise);
         }
 
@@ -109,13 +116,15 @@ namespace FishORama.Fish
                 yDirection = 1;
             }
 
-
+            // if not sinking or rising aka normal behaviour
             if (!isSinkingOrRising)
             {
-                HandleMovement(hitBoundry);
+                HandleStandardMovement(hitBoundry);
                 frameCount++;
+                // if there has been sufficient frames since the last sink or rise
                 if (frameCount >= framesBetweenSinkOrRise)
                 {
+                    // sets frames needed for next sink or rise to a random amount of frames between 2 constants
                     framesBetweenSinkOrRise = random.Next(minFramesBetweenSinkOrRise, maxFramesBetweenSinkOrRise);
                     frameCount = 0;
                     isSinkingOrRising = true;
@@ -124,37 +133,37 @@ namespace FishORama.Fish
                     if (randomNum == 0)
                     {
                         // abs gets the positive version of the number that is invereted so it is certain that the speed is negative
-                        speedY = -Math.Abs(speedY);
+                        speedY = -sinkRiseSpeed;
                         sinkingMode = true;
                         minSinkY = yPosition - 100;
                     }
+                    // else set rising
                     else
                     {
-                        speedY = Math.Abs(speedY);
+                        speedY = sinkRiseSpeed;
                         maxFloatY = yPosition + 100;
                     }
                 }
             }
             else
             {
+                // if a boundry is hit min and max Y is reset and sinking/rising mode is stopped
                 if(hitBoundry)
                 {
-                    SetMinMaxY();
-                    sinkingMode = false;
-                    isSinkingOrRising = false;
+                    SwitchToNormState();
+                    // stops method execution
                     return;
                 }
+                // if sinking mode and already sunk 100 units
                 if (sinkingMode && yPosition <= minSinkY)
                 {
-                    SetMinMaxY();
-                    sinkingMode = false;
-                    isSinkingOrRising = false;
+                    SwitchToNormState();
                     return;
                 }
+                // if rising mode and already risen 100 units
                 else if (!sinkingMode && yPosition >= maxFloatY)
                 {
-                    SetMinMaxY();
-                    isSinkingOrRising = false;
+                    SwitchToNormState();
                     return;
                 }
                 yPosition += speedY;
@@ -163,23 +172,33 @@ namespace FishORama.Fish
 
 
         }
-        void SetMinMaxY()
+        void SwitchToNormState()
         {
+            // if sinking mode set the new zig zag boundry max to 100 above the current value
             if (sinkingMode)
             {
                 sinkingMode = false;
                 minY = yPosition;
                 maxY = yPosition + 100;
+                speedY = standardSpeedY;
             }
+            // else if rising set min to 100 below
             else
             {
                 maxY = yPosition;
                 minY = yPosition - 100;
+                speedY = -standardSpeedY;
             }
+            // go back to normal state
+            isSinkingOrRising = false;
         }
-
-        private void HandleMovement(bool hitBoundry)
+        /// <summary>
+        /// handles the standard (zigzag) movement including adding speed to position
+        /// </summary>
+        /// <param name="hitBoundry"></param>
+        private void HandleStandardMovement(bool hitBoundry)
         {
+            // changes Y direction when zig-zag Y threshold met
             if (yPosition >= maxY)
             {
                 speedY = -Math.Abs(speedY);

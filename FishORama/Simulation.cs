@@ -34,10 +34,13 @@ namespace FishORama
 
         Piranha piranha;
 
+        BlueFish blueFish;
+
         const string orangeFishAssetID = "OrangeFish";
         const string urchinAssetID = "Urchin";
         const string SeahorseAssetID = "Seahorse";
         const string piranhaAssetID1 = "Piranha1";
+        const string blueFishAssetID = "BlueFish";
 
         Random random = new();
 
@@ -71,6 +74,7 @@ namespace FishORama
             Vector2 urchinOffset = new(Urchin.imageAssetBounds.X / 2, Urchin.imageAssetBounds.Y / 2);
             Vector2 seahorseOffset = new(Seahorse.imageAssetBounds.X / 2, Seahorse.imageAssetBounds.Y / 2);
             Vector2 piranha1Offset = new(Piranha.imageAssetBounds.X / 2, Piranha.imageAssetBounds.Y / 2);
+            Vector2 blueFishOffset = new(BlueFish.imageAssetBounds.X / 2, BlueFish.imageAssetBounds.Y / 2);
 
             orangeFish = new OrangeFish(orangeFishAssetID,
                 // random position (includes texture size)
@@ -114,6 +118,14 @@ namespace FishORama
                screen, tokenManager);
 
             kernel.InsertToken(piranha);
+
+
+            blueFish = new BlueFish(blueFishAssetID, 
+                random.Next((int)(-offsetMax.X + blueFishOffset.X), (int)(offsetMax.X - blueFishOffset.X)),
+                random.Next((int)(-offsetMax.Y + blueFishOffset.Y), (int)(offsetMax.Y - blueFishOffset.Y)),
+                screen, tokenManager);
+
+            kernel.InsertToken(blueFish);
         }
 
         /// METHOD: Update - called 60 times a second by the FishORama engine when the program is running
@@ -134,6 +146,8 @@ namespace FishORama
                 seahorse.Update();
             }
             piranha.Update();
+
+            blueFish.Update();
 
         }
     }
