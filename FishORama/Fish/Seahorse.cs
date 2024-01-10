@@ -92,26 +92,21 @@ namespace FishORama.Fish
             //reverse direction if edge of screen reached (factors in image width)
             if (xPosition >= (screen.width / 2) - (imageAssetBounds.X / 2))
             {
-                //handles speed
-                speedX = -Math.Abs(speedX);
                 xDirection = -1;
                 hitBoundry = true;
             }
             else if (xPosition <= -screen.width / 2 + (imageAssetBounds.X / 2))
             {
-                speedX = Math.Abs(speedX);
                 xDirection = 1;
                 hitBoundry = true;
             }
             else if (yPosition >= (screen.height / 2) - (imageAssetBounds.Y / 2))
             {
-                speedY = -Math.Abs(speedY);
                 hitBoundry = true;
                 yDirection = -1;
             }
             else if (yPosition <= -screen.height / 2 + (imageAssetBounds.Y / 2))
             {
-                speedY = Math.Abs(speedY);
                 hitBoundry = true;
                 yDirection = 1;
             }
@@ -133,7 +128,8 @@ namespace FishORama.Fish
                     if (randomNum == 0)
                     {
                         // abs gets the positive version of the number that is invereted so it is certain that the speed is negative
-                        speedY = -sinkRiseSpeed;
+                        speedY = sinkRiseSpeed;
+                        yDirection = -1;
                         sinkingMode = true;
                         minSinkY = yPosition - 100;
                     }
@@ -141,6 +137,7 @@ namespace FishORama.Fish
                     else
                     {
                         speedY = sinkRiseSpeed;
+                        yDirection = 1;
                         maxFloatY = yPosition + 100;
                     }
                 }
@@ -187,7 +184,7 @@ namespace FishORama.Fish
             {
                 maxY = yPosition;
                 minY = yPosition - 100;
-                speedY = -standardSpeedY;
+                speedY = standardSpeedY;
             }
             // go back to normal state
             isSinkingOrRising = false;
@@ -201,16 +198,16 @@ namespace FishORama.Fish
             // changes Y direction when zig-zag Y threshold met
             if (yPosition >= maxY)
             {
-                speedY = -Math.Abs(speedY);
+                yDirection = -1;
             }
             else if (yPosition <= minY)
             {
-                speedY = Math.Abs(speedY);
+                yDirection = 1;
             }
 
             // adds speed to the overall position
-            xPosition += speedX;
-            yPosition += speedY;
+            xPosition += speedX * xDirection;
+            yPosition += speedY * yDirection;
         }
 
         /// METHOD: Draw - Called repeatedly by FishORama engine to draw token on screen

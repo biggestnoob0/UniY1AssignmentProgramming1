@@ -67,30 +67,29 @@ namespace FishORama.Fish
             if (xPosition >= (screen.width / 2) - (imageAssetBounds.X / 2) || xPosition <= -screen.width / 2 + (imageAssetBounds.X / 2))
             {
                 //handles speed
-                speedX = -speedX;
                 xDirection = -xDirection;
                 // this causes the fish to have a 25% chance of changing Y direction when the X boundry is hit
                 if (random.Next(100) < 25)
                 {
-                    speedY = -speedY;
+                    
                     yDirection = -yDirection;
                 }
             }
             if (yPosition >= (screen.height / 2) -(imageAssetBounds.Y / 2) || yPosition <= -screen.height / 2 + (imageAssetBounds.Y / 2))
             {
-                speedY = -speedY;
+               
                 yDirection = -yDirection;
                 // this causes the fish to have a 50% chance of changing X direction when the Y boundry is hit
                 if (random.Next(100) < 50)
                 {
-                    speedX = -speedX;
+                    
                     xDirection = -xDirection;
                 }
             }
 
             // adds speed to the overall position
-            xPosition += speedX;
-            yPosition += speedY;
+            xPosition += speedX * xDirection;
+            yPosition += speedY * yDirection;
         }
 
         /// METHOD: Draw - Called repeatedly by FishORama engine to draw token on screen

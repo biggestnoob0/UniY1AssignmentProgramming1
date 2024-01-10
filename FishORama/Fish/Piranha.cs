@@ -80,14 +80,7 @@ namespace FishORama.Fish
                 {
                     tokenManager.RemoveChickenLeg();
                     // makes the piranha continue in the direction its already going
-                    if (speedX > 0)
-                    {
-                        speedX = standardSpeedX;
-                    }
-                    else
-                    {
-                        speedX = -standardSpeedX;
-                    }
+                    speedX = standardSpeedX;
 
                     speedY = standardSpeedY;
                 }
@@ -103,8 +96,8 @@ namespace FishORama.Fish
                     {
                         xDirection = -1;
                     }
-                    speedX = direction.X * speedWhenChickenLeg;
-                    speedY = direction.Y * speedWhenChickenLeg;
+                    speedX = direction.X * speedWhenChickenLeg * xDirection;
+                    speedY = direction.Y * speedWhenChickenLeg * yDirection;
                 }
             }
 
@@ -112,18 +105,16 @@ namespace FishORama.Fish
             if (xPosition >= (screen.width / 2) - (imageAssetBounds.X / 2))
             {
                 //handles speed
-                speedX = -standardSpeedX;
                 xDirection = -1;
             }
             else if (xPosition <= (-screen.width / 2) + (imageAssetBounds.X / 2))
             {
-                speedX = standardSpeedX;
                 xDirection = 1;
             }
 
             // adds speed to the overall position
-            xPosition += speedX;
-            yPosition += speedY;
+            xPosition += speedX * xDirection;
+            yPosition += speedY * yDirection;
         }
 
         /// METHOD: Draw - Called repeatedly by FishORama engine to draw token on screen

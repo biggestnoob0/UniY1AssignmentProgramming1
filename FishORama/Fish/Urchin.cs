@@ -73,7 +73,8 @@ namespace FishORama.Fish
                     }
                     else
                     {
-                        speedX = -6;
+                        xDirection = -1;
+                        speedX = 6;
                     }
                 }
                 else
@@ -85,6 +86,7 @@ namespace FishORama.Fish
                     }
                     else
                     {
+                        xDirection = 1;
                         speedX = 6;
                     }
                 }
@@ -97,18 +99,17 @@ namespace FishORama.Fish
             //reverse direction if edge of screen reached (factors in image width)
             if (xPosition >= (screen.width / 2) - (imageAssetBounds.X / 2))
             {
-                //handles speed
-                speedX = -standardSpeedX;
                 xDirection = -1;
+                speedX = standardSpeedX;
             }
             else if(xPosition <= -screen.width / 2 + (imageAssetBounds.X / 2))
             {
-                speedX = standardSpeedX;
                 xDirection = 1;
+                speedX = standardSpeedX;
             }
 
             // adds speed to the overall position
-            xPosition += speedX;
+            xPosition += speedX * xDirection;
         }
 
         /// METHOD: Draw - Called repeatedly by FishORama engine to draw token on screen
