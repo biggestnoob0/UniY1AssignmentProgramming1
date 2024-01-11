@@ -66,7 +66,6 @@ namespace FishORama.Fish
             //reverse direction if edge of screen reached (factors in image width) and handles direction flipping
             if (xPosition >= (screen.width / 2) - (imageAssetBounds.X / 2) || xPosition <= -screen.width / 2 + (imageAssetBounds.X / 2))
             {
-                //handles speed
                 xDirection = -xDirection;
                 // this causes the fish to have a 25% chance of changing Y direction when the X boundry is hit
                 if (random.Next(100) < 25)

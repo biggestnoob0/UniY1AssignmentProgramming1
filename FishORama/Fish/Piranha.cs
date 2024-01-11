@@ -86,6 +86,7 @@ namespace FishORama.Fish
                 }
                 else
                 {
+                    //vector movement
                     Vector2 currentLocation = new Vector2(xPosition, yPosition);
                     Vector2 direction = Vector2.Normalize(tokenManager.ChickenLeg.Position - currentLocation);
                     if(direction.X > 0)
@@ -96,6 +97,7 @@ namespace FishORama.Fish
                     {
                         xDirection = -1;
                     }
+                    //speed calculation factoring in the direction
                     speedX = direction.X * speedWhenChickenLeg * xDirection;
                     speedY = direction.Y * speedWhenChickenLeg * yDirection;
                 }

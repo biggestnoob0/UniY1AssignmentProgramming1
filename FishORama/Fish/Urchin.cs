@@ -66,6 +66,7 @@ namespace FishORama.Fish
             {
                 if (tokenManager.ChickenLeg.Position.X >= xPosition)
                 {
+                    // stops the running behaviour if the urchin hits a bound
                     if (xPosition <= -screen.width / 2 + (imageAssetBounds.X / 2))
                     {
                         chickenLegRecentlySpawned = true;
@@ -79,6 +80,7 @@ namespace FishORama.Fish
                 }
                 else
                 {
+                    // stops the running behaviour if the urchin hits a bound
                     if (xPosition >= (screen.width / 2) - (imageAssetBounds.X / 2))
                     {
                         chickenLegRecentlySpawned = true;

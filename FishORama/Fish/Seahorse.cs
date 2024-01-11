@@ -163,7 +163,7 @@ namespace FishORama.Fish
                     SwitchToNormState();
                     return;
                 }
-                yPosition += speedY;
+                yPosition += speedY * yDirection;
             }
 
 
